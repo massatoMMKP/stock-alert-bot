@@ -10,7 +10,6 @@ class Stock
   end
 
   private
-
   def percentage_change(current_price)
     ((current_price - @purchase_price) / @purchase_price) * 100
   end
