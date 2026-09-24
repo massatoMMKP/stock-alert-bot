@@ -23,4 +23,32 @@ RSpec.describe Stock do
       end
     end
   end
+
+  describe "#price_target_reached?" do
+    context "when the current price reaches the target price" do
+      it "returns true" do
+        stock = described_class.new(
+          ticker: "WEGE3",
+          purchase_price: 40.00,
+          target_percentage: 20,
+          target_price: 55.00
+        )
+
+        expect(stock.price_target_reached?(55.00)).to be true
+      end
+    end
+
+    context "when the current price is below the target price" do
+      it "returns false" do
+        stock = described_class.new(
+          ticker: "WEGE3",
+          purchase_price: 40.00,
+          target_percentage: 20,
+          target_price: 55.00
+        )
+
+        expect(stock.price_target_reached?(54.99)).to be false
+      end
+    end
+  end
 end
