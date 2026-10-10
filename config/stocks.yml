@@ -1,0 +1,8 @@
+stocks:
+  - ticker: PETR4
+    purchase_price: 40.0
+    target_percentage: 20
+
+  - ticker: WEGE3
+    purchase_price: 35.0
+    target_percentage: 15

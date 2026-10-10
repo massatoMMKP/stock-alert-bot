@@ -8,14 +8,15 @@ class MarketData
 
   API_URL = "https://brapi.dev/api/quote"
 
-  def initialize(http_client: Net::HTTP)
+  def initialize(http_client: Net::HTTP, token: nil)
     @http_client = http_client
+    @token = token
   end
 
   def price_for(ticker)
     uri = URI("#{API_URL}/#{ticker}")
 
-    response = @http_client.get_response(uri)
+    response = fetch_response(uri)
 
     unless response.code == "200"
       raise APIError, "API request failed with status #{response.code}"
@@ -30,5 +31,16 @@ class MarketData
     end
 
     stock_data.fetch("regularMarketPrice")
+  end
+
+  private
+
+  def fetch_response(uri)
+    return @http_client.get_response(uri) unless @token
+
+    @http_client.get_response(
+      uri,
+      { "Authorization" => "Bearer #{@token}" }
+    )
   end
 end

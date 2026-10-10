@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+
+require_relative "../lib/infrastructure/stock_config"
+require_relative "../lib/infrastructure/market_data"
+require_relative "../lib/use_cases/check_stock_target"
+require_relative "../lib/infrastructure/notifications/notification_service"
+require_relative "../lib/infrastructure/notifications/telegram_provider"
+
+config_path = File.expand_path("../config/stocks.yml", __dir__)
+stocks = StockConfig.new(path: config_path).load
+
+provider = TelegramProvider.new(
+  token: ENV.fetch("TELEGRAM_BOT_TOKEN"),
+  chat_id: ENV.fetch("TELEGRAM_CHAT_ID")
+)
+
+notifier = NotificationService.new(provider: provider)
+
+use_case = CheckStockTarget.new(
+  market_data: MarketData.new(
+  token: ENV.fetch("BRAPI_TOKEN")
+  ),
+  notifier: notifier
+)
+
+stocks.each do |stock|
+  puts "Consultando #{stock.ticker}..."
+  use_case.call(stock)
+end
