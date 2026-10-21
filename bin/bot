@@ -1,7 +1,8 @@
 #!/usr/bin/env ruby
 
 require_relative "../lib/infrastructure/stock_config"
-require_relative "../lib/infrastructure/market_data"
+require_relative "../lib/infrastructure/market_data/market_data_service"
+require_relative "../lib/infrastructure/market_data/brapi_provider"
 require_relative "../lib/use_cases/check_stock_target"
 require_relative "../lib/infrastructure/notifications/notification_service"
 require_relative "../lib/infrastructure/notifications/telegram_provider"
@@ -17,8 +18,10 @@ provider = TelegramProvider.new(
 notifier = NotificationService.new(provider: provider)
 
 use_case = CheckStockTarget.new(
-  market_data: MarketData.new(
-  token: ENV.fetch("BRAPI_TOKEN")
+    market_data: MarketDataService.new(
+    provider: BrapiProvider.new(
+      token: ENV.fetch("BRAPI_TOKEN")
+    )
   ),
   notifier: notifier
 )

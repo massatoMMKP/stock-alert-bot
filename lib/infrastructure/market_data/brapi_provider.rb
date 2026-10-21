@@ -1,10 +1,11 @@
 require "net/http"
 require "json"
 require "uri"
+require_relative "market_data_provider"
+require_relative "market_data_errors"
 
-class MarketData
-  class APIError < StandardError; end
-  class StockNotFoundError < StandardError; end
+class BrapiProvider
+  include MarketDataProvider
 
   API_URL = "https://brapi.dev/api/quote"
 
@@ -15,22 +16,17 @@ class MarketData
 
   def price_for(ticker)
     uri = URI("#{API_URL}/#{ticker}")
-
     response = fetch_response(uri)
 
     unless response.code == "200"
-      raise APIError, "API request failed with status #{response.code}"
+      raise MarketDataError, "API request failed with status #{response.code}"
     end
 
-    data = JSON.parse(response.body)
+    stock = JSON.parse(response.body).fetch("results").first
 
-    stock_data = data.fetch("results").first
+    raise StockNotFoundError, "Stock #{ticker} not found" unless stock
 
-    unless stock_data
-      raise StockNotFoundError, "Stock #{ticker} not found"
-    end
-
-    stock_data.fetch("regularMarketPrice")
+    stock.fetch("regularMarketPrice")
   end
 
   private
